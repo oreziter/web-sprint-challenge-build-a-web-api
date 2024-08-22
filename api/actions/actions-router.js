@@ -20,6 +20,47 @@ router.get('/', (req, res) => {
 
 })
 
+router.get('/:id', async (req, res) => {
+  try {
+      const post = await Actions.get(req.params.id)
+      if (!post) {
+        res.status(404).json({
+          message: "The post with the specified ID does not exist", 
+        })
+      } else {
+        res.json(post)
+      }
+   } catch(err) {
+      res.status(500).json({ 
+        message: "The post information could not be retrieved" ,
+        err: err.message,
+        stack: err.stack,
+      })
+  }
+
+})
+
+router.post('/', (req, res) => {
+  const { name, description } = req.body;
+
+  if (!name || !description) {
+    return res.status(400).json({
+      message: "Please provide name and description for the project",
+    });
+  }
+
+  router.insert({ name, description })
+    .then(newProject => {
+      res.status(201).json(newProject); 
+    })
+    .catch(err => {
+      res.status(500).json({
+        message: "There was an error while saving the project to the database",
+        error: err.message,
+        stack: err.stack,
+      });
+    });
+});
 
 
 

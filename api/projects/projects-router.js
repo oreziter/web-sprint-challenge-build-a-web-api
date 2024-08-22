@@ -42,11 +42,9 @@ projects.get('/:id', async (req, res) => {
 
 })
 
-
 projects.post('/', (req, res) => {
   const { name, description } = req.body;
 
-  
   if (!name || !description) {
     return res.status(400).json({
       message: "Please provide name and description for the project",
