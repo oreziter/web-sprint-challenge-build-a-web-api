@@ -47,17 +47,16 @@ projects.post('/', (req, res) => {
 
   if (!name || !description) {
     return res.status(400).json({
-      message: "Please provide name and description for the project",
+      message: "Is been long over due",
     });
   }
-
-  projects.insert({ name, description })
+  Post.insert(req.body) 
     .then(newProject => {
       res.status(201).json(newProject); 
     })
     .catch(err => {
       res.status(500).json({
-        message: "There was an error while saving the project to the database",
+        message: "Hello",
         error: err.message,
         stack: err.stack,
       });
@@ -65,43 +64,56 @@ projects.post('/', (req, res) => {
 });
 
 projects.put('/:id', (req, res) => {
-  const { title, contents} = req.body
-  if (!title || !contents) {
-    res.status(400).json({
-      message: "Please provide title and contents for the post", 
-    })
-  } else {
-    Post.findById(req.params.id)
-    .then(stuff => {
-      if(!stuff) {
-        res.status(404).json({
-          message : "The post with the specified ID does not exist",
-        })
-      } else {
-        return Post.update(req.params.id, req.body)
-      }
-    })
-    .then(data => {
-      if(data) {
-        return Post.findById(null)
-      }
-    })
-    .then(post => {
-      if(post) {
-        res.json(post)
-      }
-    })
-    .catch(err => {
-    res.status(500).json({ 
-        message: "The post information could not be retrieved", 
-        err: err.message,
-        stack: err.stack,
-      })
-    })
+  const { name, description, completed } = req.body;
+
+  if (name === undefined || description === undefined || completed === undefined) {
+    return res.status(400).json({
+      message: "Please provide name, description, and completed status for the project",
+    });
   }
 
-})
+  Post.update(req.params.id, { name, description, completed })
+    .then(updatedProject => {
+      if (!updatedProject) {
+        return res.status(404).json({
+          message: "The project with the specified ID does not exist",
+        });
+      }
+      return res.status(200).json(updatedProject);
+    })
+    .catch(err => {
+      res.status(500).json({
+        message: "The project information could not be retrieved",
+        error: err.message,
+        stack: err.stack,
+      });
+    });
+});
 
+
+// projects.put('/:id', (req, res) => {
+  
+//   // console.log(description)
+//   // console.log(name)
+
+//   try {
+//     const user = Post.update(req.params.id);
+//     if (!user) {
+//       return res.status(404).json({ message: "null" });
+//     }
+
+//     const updatedUser = Post.update(req.params.id);
+//     res.status(200).json(updatedUser);
+//   } catch (err) {
+//     res.status(500).json({
+//       message: "The user information could not be modified",
+//       err: err.message,
+//       stack: err.stack,
+//     });
+//   }
+// });
+
+ 
 
 projects.delete('/:id', async (req, res) => {
   try {
@@ -112,7 +124,7 @@ projects.delete('/:id', async (req, res) => {
         })
       } else {
         await Post.remove(req.params.id)
-        res.json() 
+        res.status().json()  
       }
   } catch (err)  {
       res.status(500).json({
@@ -124,6 +136,7 @@ projects.delete('/:id', async (req, res) => {
   }
   
   })
+   
 
 projects.get('/:id/actions', async (req, res) => {
   try {
