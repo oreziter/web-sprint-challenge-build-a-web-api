@@ -40,27 +40,29 @@ router.get('/:id', async (req, res) => {
 
 })
 
-router.post('/', (req, res) => {
-  const { name, description } = req.body;
 
-  if (!name || !description) {
+router.post('/', (req, res) => {
+  const {project_id,description , notes} = req.body;
+
+  if (!description || !project_id || !notes) {
     return res.status(400).json({
-      message: "Please provide name and description for the project",
+      message: "Please provide name, description, project_id, notes, and completed status for the action",
     });
   }
 
-  Actions.insert({ name, description })
+  Actions.insert({ description, project_id, notes })
     .then(newAction => {
       res.status(201).json(newAction); 
     })
     .catch(err => {
       res.status(500).json({
-        message: "There was an error while saving the project to the database",
+        message: "There was an error while saving the action to the database",
         error: err.message,
         stack: err.stack,
       });
     });
 });
+
 
 
 router.put('/:id', (req, res) => {
